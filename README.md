@@ -37,5 +37,3 @@ Contains project-wide constants such as:
 3. The game uses `board.py` to manage the game state  
 4. During the AI turn, `ai.py` computes the best move  
 5. The move is applied to the board and the game continues
-
----
