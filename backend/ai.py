@@ -2,6 +2,8 @@ import math
 import random
 import numpy as np
 from constants import *
+from board import Board
+
 
 # ---- OCENA OKNA 4 POL ----
 def evaluate_window(window, piece):
@@ -51,51 +53,56 @@ def score_position(board, piece):
 def minimax(board, depth, alpha, beta, maximizing):
     valid_moves = [c for c in range(COLUMNS) if board.is_valid_location(c)]
 
+    # KONIEC
     if depth == 0 or len(valid_moves) == 0:
         return (None, score_position(board, AI))
 
+    # ---- MAX (AI) ----
     if maximizing:
         value = -math.inf
-        column = random.choice(valid_moves)
+        best_col = random.choice(valid_moves)
 
         for col in valid_moves:
             row = board.get_next_open_row(col)
-            b_copy = board.grid.copy()
-            board.drop_piece(row, col, AI)
 
-            new_score = minimax(board, depth-1, alpha, beta, False)[1]
+            temp_board = Board()
+            temp_board.grid = board.grid.copy()
 
-            board.grid = b_copy
+            temp_board.drop_piece(row, col, AI)
+
+            new_score = minimax(temp_board, depth-1, alpha, beta, False)[1]
 
             if new_score > value:
                 value = new_score
-                column = col
+                best_col = col
 
             alpha = max(alpha, value)
             if alpha >= beta:
                 break
 
-        return column, value
+        return best_col, value
 
+    # ---- MIN (GRACZ) ----
     else:
         value = math.inf
-        column = random.choice(valid_moves)
+        best_col = random.choice(valid_moves)
 
         for col in valid_moves:
             row = board.get_next_open_row(col)
-            b_copy = board.grid.copy()
-            board.drop_piece(row, col, PLAYER)
 
-            new_score = minimax(board, depth-1, alpha, beta, True)[1]
+            temp_board = Board()
+            temp_board.grid = board.grid.copy()
 
-            board.grid = b_copy
+            temp_board.drop_piece(row, col, PLAYER)
+
+            new_score = minimax(temp_board, depth-1, alpha, beta, True)[1]
 
             if new_score < value:
                 value = new_score
-                column = col
+                best_col = col
 
             beta = min(beta, value)
             if alpha >= beta:
                 break
 
-        return column, value
+        return best_col, value

@@ -147,3 +147,7 @@ button:hover {
 .cell.ai {
   background: radial-gradient(circle, #2ecc71, #27ae60);
 }
+
+.cell.hover {
+  background: rgba(0, 0, 0, 0.2);
+}
