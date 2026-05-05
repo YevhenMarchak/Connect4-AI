@@ -1,18 +1,9 @@
 const board = document.getElementById("board");
 const statusText = document.getElementById("status");
 
-// ---- STATE ----
 let grid = Array(6).fill().map(() => Array(7).fill(0));
 let gameOver = false;
-
-// ---- SCORE + USER ----
-let playerScore = parseInt(localStorage.getItem("playerScore")) || 0;
-let aiScore = parseInt(localStorage.getItem("aiScore")) || 0;
-let nickname = localStorage.getItem("nickname") || "You";
-
-// ---- TIMER ----
-let timeLeft = 5;
-let timerInterval;
+let isProcessing = false;
 
 // ---- RYSOWANIE ----
 function draw() {
@@ -32,55 +23,11 @@ function draw() {
   }
 }
 
-// ---- TIMER ----
-function startTimer() {
-  clearInterval(timerInterval);
-  timeLeft = 5;
-
-  const timerEl = document.getElementById("timer");
-
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    timerEl.innerText = timeLeft + "s";
-
-    if (timeLeft <= 0) {
-      clearInterval(timerInterval);
-    }
-  }, 1000);
-}
-
-// ---- SCORE ----
-function updateScore() {
-  document.getElementById("playerScore").innerText = playerScore;
-  document.getElementById("aiScore").innerText = aiScore;
-
-  localStorage.setItem("playerScore", playerScore);
-  localStorage.setItem("aiScore", aiScore);
-}
-
-// ---- START ----
-function startGame() {
-  const input = document.getElementById("nicknameInput").value;
-
-  if (input) {
-    nickname = input;
-    localStorage.setItem("nickname", nickname);
-  }
-
-  document.getElementById("playerName").innerText = nickname;
-
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("gameUI").style.display = "block";
-
-  updateScore();
-  startTimer();
-}
-
 // ---- RUCH ----
 async function makeMove(col) {
-  if (gameOver) return;
+  if (gameOver || isProcessing) return;
 
-  statusText.innerText = "AI THINKING...";
+  isProcessing = true;
 
   const res = await fetch("/move", {
     method: "POST",
@@ -90,35 +37,24 @@ async function makeMove(col) {
 
   const data = await res.json();
 
-  // aktualizacja stanu BEZ animacji
-  if (data.player) {
+  // 🔴 BEZPIECZNE zapisy
+  if (data.player && data.player.row !== null) {
     grid[data.player.row][data.player.col] = 1;
   }
 
-  if (data.ai) {
+  if (data.ai && data.ai.row !== null) {
     grid[data.ai.row][data.ai.col] = 2;
   }
 
   draw();
 
-  statusText.innerText = "YOUR TURN";
-  startTimer();
-
-  // WYGRANA
   if (data.winner) {
     gameOver = true;
-    clearInterval(timerInterval);
-
-    if (data.winner === "PLAYER") {
-      playerScore++;
-      statusText.innerText = "YOU WIN";
-    } else {
-      aiScore++;
-      statusText.innerText = "AI WIN";
-    }
-
-    updateScore();
+    statusText.innerText =
+      data.winner === "PLAYER" ? "YOU WIN" : "AI WIN";
   }
+
+  isProcessing = false;
 }
 
 // ---- CLICK ----
@@ -134,12 +70,23 @@ async function resetGame() {
 
   grid = Array(6).fill().map(() => Array(7).fill(0));
   gameOver = false;
+  isProcessing = false;
 
   draw();
-  startTimer();
-
   statusText.innerText = "YOUR TURN";
 }
 
-// ---- INIT ----
 draw();
+
+function startGame() {
+  const input = document.getElementById("nicknameInput").value;
+
+  let nickname = input || "You";
+
+  document.getElementById("playerName").innerText = nickname;
+
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("gameUI").style.display = "flex";
+
+  document.getElementById("status").innerText = "YOUR TURN";
+}

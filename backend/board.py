@@ -28,5 +28,17 @@ class Board:
             for r in range(ROWS-3):
                 if all(self.grid[r+i][c] == piece for i in range(4)):
                     return True
+                
+        # dodatnie przekątne
+        for c in range(COLUMNS-3):
+            for r in range(ROWS-3):
+                if all(self.grid[r+i][c+i] == piece for i in range(4)):
+                    return True
+
+# ujemne przekątne
+        for c in range(COLUMNS-3):
+            for r in range(3, ROWS):
+                if all(self.grid[r-i][c+i] == piece for i in range(4)):
+                    return True
 
         return False
