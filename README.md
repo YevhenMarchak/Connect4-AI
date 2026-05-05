@@ -44,7 +44,7 @@ Responsible for user interaction:
 7. The updated game state is returned to the frontend  
 8. The frontend updates the UI and the game continues
 
-## ## How to run the project
+## How to run the project
 ```
 python -m venv venv
 venv\Scripts\activate
