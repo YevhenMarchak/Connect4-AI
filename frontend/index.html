@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Connect4</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="startScreen">
+  <h2>Enter your name</h2>
+  <input id="nicknameInput" placeholder="Your nickname">
+  <button onclick="startGame()">Start</button>
+</div>
+
+<div id="gameUI" style="display:none">
+
+  <div class="top-bar">
+    <div class="player-info">
+      <span id="playerName">You</span>
+      <span id="playerScore">0</span>
+    </div>
+
+    <div class="center">
+      <div id="status">YOUR TURN</div>
+      <div id="timer">30s</div>
+    </div>
+
+    <div class="player-info">
+      <span>AI</span>
+      <span id="aiScore">0</span>
+    </div>
+  </div>
+
+  <div id="board"></div>
+
+  <div class="controls">
+    <button onclick="resetGame()">Restart</button>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
