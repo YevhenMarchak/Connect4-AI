@@ -1,10 +1,10 @@
-##Module Description
-###app.py
+Module Description
+app.py
 
 Entry point of the application.
 Responsible for initializing and running the Flask server.
 
-###board.py
+board.py
 
 Core module responsible for board representation and operations:
 
@@ -12,7 +12,7 @@ maintaining the game state (7×6 grid)
 handling piece placement
 validating moves
 detecting win conditions
-###ai.py
+ai.py
 
 Implements artificial intelligence algorithms:
 
@@ -20,7 +20,7 @@ Minimax algorithm
 Alpha-beta pruning optimization
 heuristic evaluation function
 selecting the best move
-###constants.py
+constants.py
 
 Contains project-wide constants such as:
 
@@ -35,7 +35,7 @@ rendering the game board
 handling player input (mouse clicks)
 sending requests to the backend
 displaying the current game state
-###Program Flow
+Program Flow
 1.The application starts in app.py
 2.The frontend is loaded in the browser
 3.The player makes a move by clicking on a column
