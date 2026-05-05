@@ -1,11 +1,39 @@
 const board = document.getElementById("board");
 const statusText = document.getElementById("status");
+const timerText = document.getElementById("timer");
 
 let grid = Array(6).fill().map(() => Array(7).fill(0));
 let gameOver = false;
 let isProcessing = false;
 
-// ---- RYSOWANIE ----
+// TIMER
+let timeLeft = 30;
+let timerInterval = null;
+
+function startTimer() {
+  clearInterval(timerInterval);
+
+  timeLeft = 30;
+  timerText.innerText = timeLeft + "s";
+
+  timerInterval = setInterval(() => {
+    if (gameOver) {
+      clearInterval(timerInterval);
+      return;
+    }
+
+    timeLeft--;
+    timerText.innerText = timeLeft + "s";
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      gameOver = true;
+      statusText.innerText = "AI WIN";
+    }
+  }, 1000);
+}
+
+// RYSOWANIE
 function draw() {
   board.innerHTML = "";
 
@@ -23,7 +51,7 @@ function draw() {
   }
 }
 
-// ---- RUCH ----
+// RUCH
 async function makeMove(col) {
   if (gameOver || isProcessing) return;
 
@@ -37,7 +65,6 @@ async function makeMove(col) {
 
   const data = await res.json();
 
-  // 🔴 BEZPIECZNE zapisy
   if (data.player && data.player.row !== null) {
     grid[data.player.row][data.player.col] = 1;
   }
@@ -48,8 +75,14 @@ async function makeMove(col) {
 
   draw();
 
+  // RESET TIMERA PO KAŻDYM RUCHU
+  if (!data.winner) {
+    startTimer();
+  }
+
   if (data.winner) {
     gameOver = true;
+    clearInterval(timerInterval);
     statusText.innerText =
       data.winner === "PLAYER" ? "YOU WIN" : "AI WIN";
   }
@@ -57,14 +90,14 @@ async function makeMove(col) {
   isProcessing = false;
 }
 
-// ---- CLICK ----
+// CLICK
 board.addEventListener("click", (e) => {
   if (!e.target.classList.contains("cell")) return;
   const col = parseInt(e.target.dataset.col);
   makeMove(col);
 });
 
-// ---- RESET ----
+// RESET
 async function resetGame() {
   await fetch("/reset", { method: "POST" });
 
@@ -74,13 +107,13 @@ async function resetGame() {
 
   draw();
   statusText.innerText = "YOUR TURN";
+
+  startTimer();
 }
 
-draw();
-
+// START SCREEN
 function startGame() {
   const input = document.getElementById("nicknameInput").value;
-
   let nickname = input || "You";
 
   document.getElementById("playerName").innerText = nickname;
@@ -88,9 +121,12 @@ function startGame() {
   document.getElementById("startScreen").style.display = "none";
   document.getElementById("gameUI").style.display = "flex";
 
-  document.getElementById("status").innerText = "YOUR TURN";
+  statusText.innerText = "YOUR TURN";
+
+  startTimer();
 }
 
+// LOGIKA SPADANIA
 function getDropRow(col) {
   for (let r = 0; r < 6; r++) {
     if (grid[r][col] === 0) return r;
@@ -98,19 +134,21 @@ function getDropRow(col) {
   return null;
 }
 
+// HOVER
 board.addEventListener("mousemove", (e) => {
   if (!e.target.classList.contains("cell")) return;
 
   const col = parseInt(e.target.dataset.col);
   const row = getDropRow(col);
 
-  // usuń stare hover
   document.querySelectorAll(".hover").forEach(c => c.classList.remove("hover"));
 
   if (row !== null) {
     const cells = document.querySelectorAll(".cell");
     const index = (5 - row) * 7 + col;
-
     cells[index].classList.add("hover");
   }
 });
+
+// START
+draw();
