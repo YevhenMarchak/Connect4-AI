@@ -42,4 +42,19 @@ Responsible for user interaction:
 5. The backend updates the board (`board.py`)  
 6. The AI computes the best move (`ai.py`)  
 7. The updated game state is returned to the frontend  
-8. The frontend updates the UI and the game continues  
+8. The frontend updates the UI and the game continues
+
+## ## How to run the project
+```
+python -m venv venv
+venv\Scripts\activate
+pip install numpy (and another non-ins packeges)
+cd backend
+python app.py
+```
+
+Then open your browser and go to:
+```
+http://127.0.0.1:5000
+```
+  
