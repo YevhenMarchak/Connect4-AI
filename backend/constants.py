@@ -7,4 +7,4 @@ AI = 2
 
 WINDOW_LENGTH = 4
 
-DEPTH = 6  # głębokość minimax
+DEPTH = 6  # glebokosc minimax

@@ -6,9 +6,18 @@ let grid = Array(6).fill().map(() => Array(7).fill(0));
 let gameOver = false;
 let isProcessing = false;
 
+// SCORE
+let playerScore = 0;
+let aiScore = 0;
+
 // TIMER
 let timeLeft = 30;
 let timerInterval = null;
+
+function updateScore() {
+  document.getElementById("playerScore").innerText = playerScore;
+  document.getElementById("aiScore").innerText = aiScore;
+}
 
 function startTimer() {
   clearInterval(timerInterval);
@@ -28,6 +37,10 @@ function startTimer() {
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       gameOver = true;
+
+      aiScore++;
+      updateScore();
+
       statusText.innerText = "AI WIN";
     }
   }, 1000);
@@ -75,7 +88,6 @@ async function makeMove(col) {
 
   draw();
 
-  // RESET TIMERA PO KAŻDYM RUCHU
   if (!data.winner) {
     startTimer();
   }
@@ -83,8 +95,20 @@ async function makeMove(col) {
   if (data.winner) {
     gameOver = true;
     clearInterval(timerInterval);
-    statusText.innerText =
-      data.winner === "PLAYER" ? "YOU WIN" : "AI WIN";
+
+    if (data.winner === "PLAYER") {
+      playerScore++;
+      statusText.innerText = "YOU WIN";
+
+    } else if (data.winner === "AI") {
+      aiScore++;
+      statusText.innerText = "AI WIN";
+
+    } else {
+      statusText.innerText = "DRAW";
+    }
+
+    updateScore();
   }
 
   isProcessing = false;
@@ -93,6 +117,7 @@ async function makeMove(col) {
 // CLICK
 board.addEventListener("click", (e) => {
   if (!e.target.classList.contains("cell")) return;
+
   const col = parseInt(e.target.dataset.col);
   makeMove(col);
 });
@@ -106,6 +131,7 @@ async function resetGame() {
   isProcessing = false;
 
   draw();
+
   statusText.innerText = "YOUR TURN";
 
   startTimer();
@@ -123,6 +149,7 @@ function startGame() {
 
   statusText.innerText = "YOUR TURN";
 
+  updateScore();
   startTimer();
 }
 
@@ -146,6 +173,7 @@ board.addEventListener("mousemove", (e) => {
   if (row !== null) {
     const cells = document.querySelectorAll(".cell");
     const index = (5 - row) * 7 + col;
+
     cells[index].classList.add("hover");
   }
 });

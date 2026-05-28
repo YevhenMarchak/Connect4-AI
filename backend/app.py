@@ -27,7 +27,6 @@ def move():
     data = request.get_json()
     col = data.get("col")
 
-    # 🔴 BLOKADA złych ruchów
     if col is None or not board.is_valid_location(col):
         return jsonify({
             "player": None,
@@ -45,6 +44,14 @@ def move():
             "player": {"row": player_row, "col": col},
             "ai": None,
             "winner": "PLAYER"
+        })
+
+    # ---- REMIS ----
+    if board.is_draw():
+        return jsonify({
+            "player": {"row": player_row, "col": col},
+            "ai": None,
+            "winner": "DRAW"
         })
 
     # ---- RUCH AI ----
@@ -69,6 +76,14 @@ def move():
             "player": {"row": player_row, "col": col},
             "ai": {"row": ai_row, "col": ai_col},
             "winner": "AI"
+        })
+
+    # ---- REMIS PO RUCHU AI ----
+    if board.is_draw():
+        return jsonify({
+            "player": {"row": player_row, "col": col},
+            "ai": {"row": ai_row, "col": ai_col},
+            "winner": "DRAW"
         })
 
     return jsonify({
