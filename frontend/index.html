@@ -3,46 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <title>Connect4</title>
-
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <div id="startScreen">
-  <h2>Enter your name</h2>
-  <input id="nicknameInput" placeholder="Your nickname">
-  <button onclick="startGame()">Start</button>
+  <h2>Wybierz tryb gry i podaj nick</h2>
+  <input id="nicknameInput" placeholder="Twój nick (dla trybu z człowiekiem)">
+
+  <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 10px; width: 260px;">
+    <label for="difficultySelect" style="font-weight: bold; text-align: center;">Poziom trudności AI:</label>
+    <select id="difficultySelect" style="padding: 10px; border-radius: 10px; border: 1px solid #ccc; font-family: inherit;">
+      <option value="2">Łatwy (Głębokość 2)</option>
+      <option value="4" selected>Średni (Głębokość 4)</option>
+      <option value="6">Trudny (Głębokość 6 - AI myśli dłużej)</option>
+    </select>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px; width: 260px;">
+    <button onclick="startGame('HUMAN_VS_AI')">Człowiek vs AI (Minimax)</button>
+    <button onclick="startGame('AI_VS_AI')">AI (Minimax) vs AI (Minimax)</button>
+    <button onclick="startGame('AI_VS_RANDOM')">AI (Minimax) vs Ruchy Losowe</button>
+  </div>
 </div>
 
 <div id="gameUI" style="display:none">
 
   <div class="top-bar">
     <div class="player-info">
-      <span id="playerName">You</span>
+      <span id="playerName">Gracz 1</span>
       <span id="playerScore">0</span>
     </div>
 
     <div class="center">
-      <div id="status">YOUR TURN</div>
+      <div id="status">TWOJA TURA</div>
       <div id="timer">30s</div>
     </div>
 
     <div class="player-info">
-      <span>AI</span>
+      <span id="aiName">Gracz 2</span>
       <span id="aiScore">0</span>
     </div>
   </div>
 
   <div id="board"></div>
 
-  <div class="controls">
+  <div class="controls" style="display: flex; gap: 10px; justify-content: center;">
     <button onclick="resetGame()">Restart</button>
+    <button onclick="backToMenu()">Wróć do menu</button>
   </div>
 
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
