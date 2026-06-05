@@ -102,3 +102,5 @@ Then open your browser and go to:
 http://127.0.0.1:5000
 
 ``` 
+## AI Usage
+This project utilized Gemini 3.1 Pro as an assistant for code implementation and documentation. The AI was used to help debug frontend-backend communication, implement game logic, and structure the technical documentation. All AI-generated content was manually reviewed and verified for correctness.
