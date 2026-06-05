@@ -8,7 +8,7 @@ Responsible for initializing and running the Flask server.
 Handles API endpoints (/move, /reset) and different game modes (Human vs AI, AI vs AI, AI vs Random).
 
 Processes dynamic AI difficulty (depth) levels.
-### `board.py'
+### `board.py`
 
 Core module responsible for board representation and operations:
 
