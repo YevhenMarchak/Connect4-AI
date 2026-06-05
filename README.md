@@ -1,5 +1,5 @@
 Module Description
-app.py
+### `app.py` 
 
 Entry point of the application.
 
@@ -8,7 +8,7 @@ Responsible for initializing and running the Flask server.
 Handles API endpoints (/move, /reset) and different game modes (Human vs AI, AI vs AI, AI vs Random).
 
 Processes dynamic AI difficulty (depth) levels.
-board.py
+### `board.py'
 
 Core module responsible for board representation and operations:
 
@@ -20,7 +20,7 @@ Core module responsible for board representation and operations:
 
     detecting terminal states (win conditions and draws)
 
-ai.py
+### `ai.py'
 
 Implements artificial intelligence algorithms:
 
@@ -32,7 +32,7 @@ Implements artificial intelligence algorithms:
 
     selecting the optimal move based on the provided depth
 
-constants.py
+### `constants.py'
 
 Contains project-wide constants such as:
 
@@ -42,7 +42,7 @@ Contains project-wide constants such as:
 
     default algorithm parameters
 
-frontend (HTML, CSS, JavaScript)
+### `frontend (HTML, CSS, JavaScript)'
 
 Responsible for user interaction and UI:
 
@@ -58,7 +58,7 @@ Responsible for user interaction and UI:
 
     displaying live game state, timers, scores, and final results
 
-Program Flow
+## Program Flow
 
     The application starts in app.py
 
@@ -78,15 +78,27 @@ Program Flow
 
     The frontend updates the UI and the game loop continues
 
-How to run the project
-Bash
+ ## How to run the project
+
+```
 
 python -m venv venv
+
 venv\Scripts\activate
-pip install Flask numpy
+
+pip install numpy (and another non-ins packeges)
+
+cd backend
+
 python app.py
 
+```
+
+
 Then open your browser and go to:
-Plaintext
+
+```
 
 http://127.0.0.1:5000
+
+``` 
