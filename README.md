@@ -20,7 +20,7 @@ Core module responsible for board representation and operations:
 
     detecting terminal states (win conditions and draws)
 
-### `ai.py'
+### `ai.py`
 
 Implements artificial intelligence algorithms:
 
@@ -32,7 +32,7 @@ Implements artificial intelligence algorithms:
 
     selecting the optimal move based on the provided depth
 
-### `constants.py'
+### `constants.py`
 
 Contains project-wide constants such as:
 
@@ -42,7 +42,7 @@ Contains project-wide constants such as:
 
     default algorithm parameters
 
-### `frontend (HTML, CSS, JavaScript)'
+### `frontend (HTML, CSS, JavaScript)`
 
 Responsible for user interaction and UI:
 
