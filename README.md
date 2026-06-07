@@ -1,106 +1,70 @@
-Module Description
-### `app.py` 
+# Projekt Zaliczeniowy: Sztuczna Inteligencja - Connect 4 (Minimax)
+**Autorzy:** Mykhailo Kleban, Yevhen Marchak
 
-Entry point of the application.
+## 1. Opis teoretyczny wykorzystanych algorytmów
 
-Responsible for initializing and running the Flask server.
+Tematem projektu jest rozwiązanie praktycznego problemu polegającego na stworzeniu agenta sztucznej inteligencji zdolnego do gry w Connect 4 (Czwórki) na planszy 7x6. Problem ten zalicza się do sekwencyjnych gier dwuosobowych o sumie zero. Do jego rozwiązania wykorzystano następujące algorytmy i mechanizmy:
 
-Handles API endpoints (/move, /reset) and different game modes (Human vs AI, AI vs AI, AI vs Random).
+* **Algorytm Minimax:** Jest to algorytm rekurencyjny wykorzystywany w teorii gier. Analizuje on drzewo możliwych stanów gry na zadaną liczbę ruchów do przodu (tzw. głębokość). Jeden gracz (AI) dąży do maksymalizacji wyniku (MAX), a drugi do jego minimalizacji (MIN). Algorytm zakłada, że przeciwnik gra optymalnie.
+* **Odcięcie Alfa-Beta (Alpha-Beta Pruning):** Zoptymalizowana wersja algorytmu Minimax. Znacząco zmniejsza liczbę węzłów ocenianych w drzewie gry poprzez odcinanie gałęzi, o których wiadomo, że nie przyniosą lepszego rezultatu niż opcje zbadane wcześniej. Pozwala to na analizę głębszych poziomów drzewa w tym samym czasie, co znacząco zwiększa siłę gry bota.
+* **Funkcja heurystyczna (Evaluation Function):** Ponieważ przeszukanie całego drzewa gry aż do stanów końcowych przy pustej planszy jest niemożliwe obliczeniowo, zastosowano autorską funkcję oceniającą bieżący stan planszy. Program analizuje tzw. "okna" (4 połączone pola w poziomie, pionie lub po skosie). Przydziela dodatnie punkty za ułożenie własnych 2, 3 lub 4 klocków, oraz bardzo wysokie kary ujemne, jeśli przeciwnik ułoży 3 klocki z miejscem na czwarty. Wymusza to na AI agresywne blokowanie gracza.
 
-Processes dynamic AI difficulty (depth) levels.
-### `board.py`
+## 2. Omówienie implementacji w kodzie
 
-Core module responsible for board representation and operations:
+Projekt podzielono na moduły dla zachowania czystości architektury. Logika backendowa została napisana w języku Python z użyciem bibliotek Flask i NumPy, natomiast interfejs w HTML/CSS/JS.
 
-    maintaining the game state (7×6 grid)
+* **Implementacja Minimaxa (`ai.py`):** Główna funkcja `minimax(board, depth, alpha, beta, maximizing)` rekurencyjnie ocenia stany. Warunkiem stopu jest osiągnięcie zadanej głębokości (`depth == 0`) lub napotkanie węzła końcowego (wygrana, przegrana, remis), co sprawdzane jest za pomocą funkcji pomocniczej `is_terminal_node`.
+* **Implementacja Heurystyki (`ai.py`):** Funkcja `score_position` ocenia całą planszę, priorytetyzując środkową kolumnę (wyższa waga punktowa). Plansza jest dzielona na mniejsze segmenty 4-elementowe i ewaluowana przez `evaluate_window`, która nadaje ostateczne wartości punktowe sterujące decyzjami Minimaxa.
+* **Aplikacja / GUI (`app.py`, `script.js`):** Rozgrywka została zaimplementowana w interfejsie graficznym w przeglądarce. Interfejs wysyła stan planszy oraz wybraną trudność (głębokość drzewa) do serwera po API (endpoint `/move`), a backend oblicza ruch algorytmem AI i zwraca zaktualizowany stan do frontendu.
 
-    handling piece placement (simulating gravity)
+## 3. Napotkane problemy i sposoby ich rozwiązania
 
-    validating moves
+Podczas tworzenia projektu natrafiliśmy na wyzwania logiczne i architektoniczne, które wymagały optymalizacji:
 
-    detecting terminal states (win conditions and draws)
+1.  **Luka w początkowej funkcji heurystycznej (AI pozwalało wygrać):**
+    * *Problem:* Wstępna wersja funkcji oceniającej posiadała warunek karzący AI (ujemne punkty) za sytuację, gdy przeciwnik ułoży 3 klocki. Gdy gracz dokładał czwarty klocek (wygrywając), warunek dla "3 klocków" przestawał być spełniony, co skutkowało brakiem ujemnej punktacji. Minimax uznawał, że pozwolenie przeciwnikowi na ułożenie 4 klocków jest "tańsze" punktowo niż blokowanie 3 klocków.
+    * *Rozwiązanie:* Przebudowano heurystykę w `evaluate_window` dodając potężną karę za 4 klocki przeciwnika. Wdrożono też funkcję `is_terminal_node`, która natychmiast kończy poszukiwania w drzewie po znalezieniu wygranej, zwracając wartości krańcowe (np. 10000000 dla wygranej AI).
+2.  **Desynchronizacja planszy i komunikacji z serwerem:**
+    * *Problem:* Odświeżenie strony w przeglądarce czyściło planszę w JavaScript, ale serwer w Pythonie zapamiętywał stary układ. Powodowało to błędy, w których nowe klocki opadały w połowie pustej planszy, zatrzymując się na niewidzialnych elementach z poprzedniej gry.
+    * *Rozwiązanie:* Zaimplementowano asynchroniczne żądania API `fetch("/reset")`, które bezwarunkowo czyszczą obiekt planszy na serwerze każdorazowo przy wyborze trybu gry w GUI.
 
-### `ai.py`
+## 4. Przebieg rozgrywki
 
-Implements artificial intelligence algorithms:
+Program w pełni obsługuje trzy warianty rozgrywki do testowania zachowania sztucznej inteligencji.
 
-    Minimax algorithm with immediate terminal node checking
+### A. Rozgrywka: Człowiek vs AI (Minimax)
+AI bardzo precyzyjnie wykorzystuje błędy gracza. W poniższej sytuacji gracz próbował budować poziomą/ukośną strukturę, jednak Minimax znalazł optymalną ścieżkę do zwycięstwa i błyskawicznie ułożył cztery pionowe klocki, ignorując zmyłki przeciwnika.
 
-    Alpha-beta pruning for performance optimization
+![Rozgrywka Człowiek vs AI](images/PlayervsAI.png)
 
-    advanced heuristic evaluation function (scoring horizontal, vertical, and diagonal windows)
+### B. Rozgrywka: AI (Minimax) vs AI (Minimax)
+Sytuacja, w której zmierzyły się dwa algorytmy Minimax na tym samym poziomie głębokości poszukiwań. Z powodu optymalnego działania mechanizmów blokowania z obu stron oraz braku błędów typowych dla człowieka, rozgrywka doprowadziła do całkowitego zapełnienia planszy i zakończyła się remisem.
 
-    selecting the optimal move based on the provided depth
+![Rozgrywka AI vs AI - Remis](images/AivsAi-remis.png)
 
-### `constants.py`
+### C. Rozgrywka: AI (Minimax) vs Agent losowy (Random)
+Starcie zaawansowanego algorytmu z agentem wykonującym losowe posunięcia. Minimax bez najmniejszego problemu ignorował chaotyczne układy budowane przez agenta losowego i celowo dążył do ułożenia własnej pionowej linii, wygrywając grę w bardzo krótkim czasie.
 
-Contains project-wide constants such as:
+![Rozgrywka AI vs Random](images/AIvsRandom.png)
 
-    board dimensions
+## 5. Wykorzystanie Generatywnej Sztucznej Inteligencji
 
-    player and piece identifiers
+Zgodnie z wymogami projektowymi informujemy, że w procesie deweloperskim korzystano ze wsparcia narzędzia **Gemini 3.1 Pro**.
 
-    default algorithm parameters
+* **Analiza i debugowanie logiki AI:** Modelu użyto do diagnozy opisanego wyżej problemu z funkcją heurystyczną (brak reagowania bota na wygrywający ruch przeciwnika). Wygenerowany kod naprawczy (implementacja natychmiastowego sprawdzania stanów terminalnych) został w pełni poddany manualnej weryfikacji. Poprawność dowiedziono testami rozgrywki, po których bot zaczął agresywnie blokować gracza.
+* **Rozwiązywanie problemów architektonicznych:** AI pomogło wskazać błąd komunikacji (desynchronizację) pomiędzy stanem globalnym obiektu w Flask a żądaniami asynchronicznymi w JavaScript, co pozwoliło poprawnie zaimplementować przycisk restartu i resetowania stanów serwera.
 
-### `frontend (HTML, CSS, JavaScript)`
+## 6. Uruchomienie projektu
 
-Responsible for user interaction and UI:
+Wymagania: Python 3.x
 
-    displaying the start screen with game mode and difficulty selection
-
-    rendering the interactive game board
-
-    handling user input (mouse clicks, hover effects)
-
-    running automatic simulation loops for bot matches (AI vs AI / AI vs Random)
-
-    communicating with backend via HTTP (API /move and /reset)
-
-    displaying live game state, timers, scores, and final results
-
-## Program Flow
-
-    The application starts in app.py
-
-    The frontend is loaded in the browser
-
-    The user selects a game mode, AI difficulty, and clicks "Start"
-
-    Depending on the mode: the user makes a move (clicks on a column) OR the frontend automatically triggers a simulation step
-
-    The frontend sends a request to /move containing the move, mode, and depth
-
-    The backend updates the board (board.py)
-
-    The AI computes the best move (ai.py) using the Minimax algorithm
-
-    The updated game state (including bot moves and winner status) is returned to the frontend
-
-    The frontend updates the UI and the game loop continues
-
- ## How to run the project
-
-```
-
+```bash
+# 1. Utworzenie i aktywacja środowiska wirtualnego
 python -m venv venv
-
 venv\Scripts\activate
 
-pip install numpy (and another non-ins packeges)
+# 2. Instalacja wymaganych pakietów
+pip install Flask numpy
 
-cd backend
-
-python app.py
-
-```
-
-
-Then open your browser and go to:
-
-```
-
-http://127.0.0.1:5000
-
-``` 
-## AI Usage
-This project utilized Gemini 3.1 Pro as an assistant for code implementation and documentation. The AI was used to help debug frontend-backend communication, implement game logic, and structure the technical documentation. All AI-generated content was manually reviewed and verified for correctness.
+# 3. Uruchomienie serwera (z folderu głównego lub backend)
+python backend/app.py
